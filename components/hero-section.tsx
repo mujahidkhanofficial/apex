@@ -27,15 +27,15 @@ function DynamicText() {
   }, [])
 
   return (
-    <span className="relative inline-flex ml-2 md:ml-4 h-[1.12em] overflow-hidden align-bottom">
+    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-500 to-primary ml-1 sm:ml-2 md:ml-4">
       <AnimatePresence mode="wait">
         <motion.span
           key={index}
-          initial={{ y: "100%", opacity: 0 }}
-          animate={{ y: "0%", opacity: 1 }}
-          exit={{ y: "-100%", opacity: 0 }}
-          transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-          className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-500 to-primary whitespace-nowrap leading-[1.15] py-1"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="inline-block"
         >
           {words[index]}
         </motion.span>
@@ -82,8 +82,8 @@ function MagneticButton({ children, className, variant = "primary" }: { children
       <Link
         href={children === "View Our Work" ? "#work" : "#contact"}
         className={`px-8 py-4 font-medium rounded-sm transition-all text-center block group/btn ${variant === "primary"
-            ? "bg-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(74,222,128,0.4)]"
-            : "border border-white/10 text-foreground hover:bg-white/[0.02] backdrop-blur-sm relative overflow-hidden"
+          ? "bg-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(74,222,128,0.4)]"
+          : "border border-white/10 text-foreground hover:bg-white/[0.02] backdrop-blur-sm relative overflow-hidden"
           } ${className}`}
       >
         {variant === "ghost" && (
@@ -134,8 +134,10 @@ function InfiniteMarquee() {
 
 export function HeroSection() {
   const [isMobile, setIsMobile] = useState(false)
+  const [hasMounted, setHasMounted] = useState(false)
 
   useEffect(() => {
+    setHasMounted(true)
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
     checkMobile()
     window.addEventListener("resize", checkMobile)
@@ -173,11 +175,11 @@ export function HeroSection() {
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[0.9] mb-8"
+              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[0.95] mb-6 md:mb-8"
             >
               Human Craft.<br />
-              <span className="flex items-center justify-center lg:justify-start">
-                Digital <DynamicText />
+              <span className="md:whitespace-nowrap">
+                Digital<DynamicText />
               </span>
             </motion.h1>
 
@@ -211,7 +213,7 @@ export function HeroSection() {
               className="mt-16 text-center lg:text-left"
             >
               <p className="text-[10px] uppercase tracking-[0.3em] text-white/30 mb-6 font-semibold">Trusted by innovators at:</p>
-              <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 md:gap-12 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
+              <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 md:gap-12 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
                 {["NovaFin", "MetroChains", "NovaFlow", "StreamerPro", "CorpSafe"].map((client) => (
                   <span key={client} className="text-sm md:text-base font-bold tracking-tighter text-white/50">{client}</span>
                 ))}
@@ -224,9 +226,14 @@ export function HeroSection() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.4 }}
-            className="w-full lg:w-1/2 h-[400px] sm:h-[500px] lg:h-[600px] relative mt-12 lg:mt-0"
+            className="w-full lg:w-1/2 h-[450px] sm:h-[550px] lg:h-[700px] relative mt-12 lg:mt-0"
           >
-            {!isMobile ? (
+            {!hasMounted ? (
+              // SSR placeholder - same for server and client initial render
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : !isMobile ? (
               <Robot3D className="w-full h-full" />
             ) : (
               // Mobile fallback - simplified view
@@ -261,7 +268,7 @@ export function HeroSection() {
       </div>
 
       {/* Custom Scroll Indicator */}
-      <div className="absolute bottom-32 left-1/2 -translate-x-1/2 hidden lg:flex flex-col items-center gap-4 group cursor-pointer z-20">
+      <div className="absolute bottom-24 left-12 hidden lg:flex flex-col items-center gap-4 group cursor-pointer z-20">
         <Link href="#about" className="flex flex-col items-center gap-4">
           <span className="text-[10px] font-mono uppercase tracking-[0.4em] text-white/40 group-hover:text-primary transition-colors">Explore</span>
           <div className="w-px h-16 bg-gradient-to-b from-primary via-primary/20 to-transparent relative overflow-hidden">

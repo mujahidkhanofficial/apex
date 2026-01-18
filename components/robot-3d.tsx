@@ -77,8 +77,8 @@ function Robot({ mousePosition }: { mousePosition: { x: number; y: number } }) {
   });
 
   return (
-    <Float speed={2} rotationIntensity={0.2} floatIntensity={0.5}>
-      <group ref={groupRef} position={[0, -0.5, 0]}>
+    <Float speed={1.5} rotationIntensity={0.15} floatIntensity={0.3}>
+      <group ref={groupRef} position={[0, 0.3, 0]} scale={0.85}>
         {/* Body - Main torso */}
         <mesh position={[0, 0, 0]} castShadow>
           <boxGeometry args={[1.2, 1.5, 0.8]} />
@@ -380,7 +380,7 @@ export default function Robot3D({ className }: Robot3DProps) {
       onMouseMove={handleMouseMove}
     >
       <Canvas
-        camera={{ position: [0, 0.5, 5], fov: 45 }}
+        camera={{ position: [0, 0, 7], fov: 40 }}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
         style={{ background: "transparent" }}
@@ -414,11 +414,11 @@ export default function Robot3D({ className }: Robot3DProps) {
 
           {/* Contact shadow */}
           <ContactShadows
-            position={[0, -2.5, 0]}
-            opacity={0.5}
-            scale={10}
-            blur={2}
-            far={4}
+            position={[0, -1.8, 0]}
+            opacity={0.4}
+            scale={8}
+            blur={2.5}
+            far={3}
           />
 
           {/* Camera controller */}
