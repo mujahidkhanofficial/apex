@@ -46,7 +46,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="text-foreground">hello@apexmediadigital.com</p>
+                  <p className="text-foreground">Contact@apexmediadigital.com</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -55,7 +55,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Phone</p>
-                  <p className="text-foreground">+1 (555) 123-4567</p>
+                  <p className="text-foreground">+92 3159583961</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -64,7 +64,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Location</p>
-                  <p className="text-foreground">New York, NY — Working Globally</p>
+                  <p className="text-foreground">Peshawar, PK — Working Globally</p>
                 </div>
               </div>
             </div>

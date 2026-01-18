@@ -281,7 +281,7 @@ function ServiceCard({
               <li key={feature} className="text-sm text-muted-foreground flex items-center gap-2">
                 <motion.span
                   initial={{ scale: 0 }}
-                  animate={isInView ? { scale: 1 } : {}}
+                  animate={isCardVisible ? { scale: 1 } : {}}
                   transition={{ delay: index * 0.1 + i * 0.05 + 0.3 }}
                   className="w-1.5 h-1.5 rounded-full"
                   style={{ backgroundColor: service.color, boxShadow: `0 0 6px ${service.color}` }}

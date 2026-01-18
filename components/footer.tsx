@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Github, Linkedin, Twitter, Instagram } from "lucide-react"
 
 export function Footer() {
@@ -31,8 +32,14 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid md:grid-cols-4 gap-12 mb-12">
           <div className="md:col-span-2">
-            <Link href="/" className="text-2xl font-bold tracking-tight text-foreground mb-4 inline-block">
-              APEX<span className="text-primary">MEDIA</span>
+            <Link href="/" className="mb-4 inline-block">
+              <Image
+                src="/logo.svg"
+                alt="ApexMedia Logo"
+                width={180}
+                height={50}
+                className="h-10 w-auto object-contain"
+              />
             </Link>
             <p className="text-muted-foreground max-w-md mb-6 leading-relaxed">
               A few skilled humans doing the work of many.™ We help brands grow through strategic design, development,

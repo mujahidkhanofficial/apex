@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { Environment } from "@react-three/drei"
 import { Suspense } from "react"
-import { Linkedin, Twitter, ChevronLeft, ChevronRight } from "lucide-react"
+import { Linkedin, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react"
 import type * as THREE from "three"
 import Image from "next/image"
 
@@ -17,6 +17,7 @@ const teamMembers = [
     skills: ["Brand Identity", "UI/UX Design", "Adobe Suite", "Motion Graphics"],
     color: "#f43f5e",
     image: "/team/muhammad-ali.png",
+    whatsapp: "923159583961",
   },
   {
     name: "Mujahid Afridi",
@@ -25,6 +26,7 @@ const teamMembers = [
     skills: ["React / Next.js", "Node.js", "Database Design", "Cloud Architecture"],
     color: "#22c55e",
     image: "/team/mujahid-afridi.png",
+    whatsapp: "923139330041",
   },
   {
     name: "Amar Manzoor",
@@ -33,6 +35,7 @@ const teamMembers = [
     skills: ["Local SEO", "GMB Optimization", "Wordpress Dev", "Citation Building"],
     color: "#3b82f6",
     image: "/team/amar-manzoor.png",
+    whatsapp: "923125596080",
   },
   {
     name: "Muhammad Muavia",
@@ -41,6 +44,7 @@ const teamMembers = [
     skills: ["Youtube Automation", "Content Writing", "Video SEO", "Scripting"],
     color: "#a855f7",
     image: "/team/muhammad-muavia.png",
+    whatsapp: "923456623108",
   },
   {
     name: "Awais - Khan",
@@ -49,8 +53,15 @@ const teamMembers = [
     skills: ["Technical SEO", "Link Building", "Analytics", "Wordpress Security"],
     color: "#f97316",
     image: "/team/awais-khan.png",
+    whatsapp: "923159058805",
   },
 ]
+
+// ... (Rest of format matches existing file until TeamSection render)
+
+// ... inside rendering loop ...
+
+
 
 function HolographicBackground({ color }: { color: string }) {
   const ringRef1 = useRef<THREE.Mesh>(null)
@@ -328,14 +339,19 @@ export function TeamSection() {
                   </div>
                 </div>
 
-                {/* Social links */}
                 <div className="flex gap-3">
                   <button className="p-2 border border-border hover:border-primary hover:text-primary transition-colors rounded-sm">
                     <Linkedin size={18} />
                   </button>
-                  <button className="p-2 border border-border hover:border-primary hover:text-primary transition-colors rounded-sm">
-                    <Twitter size={18} />
-                  </button>
+                  <a
+                    href={`https://wa.me/${activeMember.whatsapp}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 border border-border hover:border-[#25D366] hover:text-[#25D366] transition-colors rounded-sm"
+                    title="Chat on WhatsApp"
+                  >
+                    <MessageCircle size={18} />
+                  </a>
                 </div>
               </motion.div>
             </AnimatePresence>

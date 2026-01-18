@@ -7,44 +7,61 @@ import { Float, MeshDistortMaterial } from "@react-three/drei"
 import Image from "next/image"
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react"
 import type * as THREE from "three"
-import { useIsMobile } from "@/hooks/use-mobile"
 
 const projects = [
   {
-    title: "E-commerce Redesign",
+    title: "ViralPulse Analytics",
+    category: "YouTube Automation",
+    image: "/youtube-automation.png",
+    tags: ["Video SEO", "Automation", "Analytics"],
+    description: "AI-driven channel growth system boosting organic views by 400%",
+    year: "2024",
+    client: "StreamerPro",
+  },
+  {
+    title: "SecurePress Enterprise",
+    category: "WordPress Security",
+    image: "/wordpress-security.png",
+    tags: ["Security", "Technical SEO", "Performance"],
+    description: "Hardened WordPress infrastructure for high-traffic enterprise sites",
+    year: "2024",
+    client: "CorpSafe",
+  },
+  {
+    title: "Apex Brand System",
+    category: "Motion Graphics",
+    image: "/motion-brand-system.png",
+    tags: ["Motion Design", "Brand Identity", "3D"],
+    description: "Comprehensive kinetic identity system for a fintech unicorn",
+    year: "2024",
+    client: "NovaFin",
+  },
+  {
+    title: "LocalMap Dominator",
+    category: "Local SEO",
+    image: "/local-seo-map.png",
+    tags: ["GMB", "Local SEO", "Maps"],
+    description: "Hyper-local dominance strategy expanding reach to 50+ locations",
+    year: "2024",
+    client: "MetroChains",
+  },
+  {
+    title: "Luxe Fashion E-com",
     category: "Shopify Development",
     image: "/modern-ecommerce-dark.png",
-    tags: ["Shopify", "UI/UX", "Development"],
+    tags: ["Shopify", "UI/UX", "Conversion"],
     description: "Complete overhaul of an online store with 40% conversion boost",
-    year: "2024",
-    client: "TechRetail Co.",
-  },
-  {
-    title: "Brand Identity System",
-    category: "Graphic Design",
-    image: "/brand-identity-design-mockups-dark.jpg",
-    tags: ["Branding", "Visual Design", "Guidelines"],
-    description: "Comprehensive brand guidelines and visual identity creation",
-    year: "2024",
-    client: "Innovate Labs",
-  },
-  {
-    title: "SaaS Platform",
-    category: "Full Stack Development",
-    image: "/saas-dashboard-interface-dark-mode.jpg",
-    tags: ["React", "Node.js", "PostgreSQL"],
-    description: "Enterprise-grade analytics dashboard with real-time data",
     year: "2023",
-    client: "DataFlow Inc.",
+    client: "TechRetail",
   },
   {
-    title: "Local Business Growth",
-    category: "Local SEO",
-    image: "/seo-analytics-dashboard-dark.jpg",
-    tags: ["SEO", "Analytics", "Growth"],
-    description: "300% increase in local search visibility and leads",
-    year: "2024",
-    client: "Metro Services",
+    title: "NeonStream SaaS",
+    category: "Full Stack Dev",
+    image: "/saas-dashboard-interface-dark-mode.jpg",
+    tags: ["React", "Node.js", "Cloud Arch"],
+    description: "Enterprise-grade analytics dashboard with real-time data processing",
+    year: "2023",
+    client: "DataFlow",
   },
 ]
 
@@ -222,7 +239,9 @@ export function WorkSection() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const activeProject = projects[activeIndex]
-  const isMobile = useIsMobile()
+
+  const canvasRef = useRef(null)
+  const isCanvasInView = useInView(canvasRef, { margin: "0px", amount: 0.2 })
 
   const nextProject = () => setActiveIndex((prev) => (prev + 1) % projects.length)
   const prevProject = () => setActiveIndex((prev) => (prev - 1 + projects.length) % projects.length)
@@ -282,8 +301,9 @@ export function WorkSection() {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative aspect-[4/3] rounded-sm overflow-hidden border border-border/50 bg-background/50 backdrop-blur-sm"
+            ref={canvasRef}
           >
-            {(isMobile === false) && (
+            {isCanvasInView && (
               <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
                 <ambientLight intensity={0.3} />
                 <pointLight position={[5, 5, 5]} intensity={0.5} color="#22c55e" />

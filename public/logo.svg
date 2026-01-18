@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
+  <!-- Generator: Adobe Illustrator 30.1.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 136)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #5db348;
+      }
+
+      .st1 {
+        fill: #5bb448;
+      }
+
+      .st2 {
+        fill: #216940;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1">
+    <polyline class="st2" points="512 343.37 795.97 841.56 851.69 841.56 722.37 621.74 767.77 548.82 980.33 913.72 746.16 913.72 512 500.21"/>
+    <polyline class="st2" points="512.39 257.92 641.58 481.1 686.06 409.1 512 109.33"/>
+    <polygon class="st2" points="628.95 548.55 639.13 542.4 752.02 359.5 678.88 312.95 902.9 202.66 897.63 451.68 821.96 402.61 703.18 598.43 667.21 615.67 628.95 548.55"/>
+  </g>
+  <g id="Layer_2">
+    <polygon class="st0" points="594.34 648.65 369.63 750.45 274.24 913.72 43.11 913.72 512 109.33 512.39 257.92 239.39 727.52 556.74 581.69 594.34 648.65"/>
+    <polygon class="st1" points="512 500.21 457.53 595.6 336 650.17 512 343.37 512 500.21"/>
+  </g>
+</svg>

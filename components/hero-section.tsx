@@ -282,7 +282,7 @@ export function HeroSection() {
           </div>
 
           {/* Service Legend - Grid layout for balanced mobile display */}
-          <div className="mt-10 sm:mt-16 grid grid-cols-3 sm:flex sm:flex-wrap sm:items-center sm:justify-center gap-x-2 gap-y-3 sm:gap-6 px-2 sm:px-4 max-w-xs sm:max-w-none mx-auto">
+          <div className="mt-10 sm:mt-16 flex flex-wrap justify-start sm:justify-center gap-x-2 gap-y-3 sm:gap-6 px-2 sm:px-4 max-w-xs sm:max-w-none mx-auto">
             {[
               { color: "#22c55e", label: "SEO" },
               { color: "#3b82f6", label: "Dev" },
@@ -292,11 +292,13 @@ export function HeroSection() {
             ].map((service, index) => (
               <div
                 key={service.label}
-                className={`flex items-center justify-center gap-1.5 sm:gap-2 ${index === 3 ? 'col-start-1 sm:col-auto' : ''
-                  } ${index === 4 ? 'col-start-2 sm:col-auto' : ''}`}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/30 border border-border/50 backdrop-blur-sm hover:border-primary/30 transition-colors"
+                style={{
+                  animationDelay: `${index * 100}ms`
+                }}
               >
-                <span
-                  className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0"
+                <div
+                  className="w-1.5 h-1.5 rounded-full animate-pulse"
                   style={{ backgroundColor: service.color, boxShadow: `0 0 8px ${service.color}` }}
                 />
                 <span className="text-[10px] sm:text-xs font-mono text-muted-foreground uppercase tracking-wider whitespace-nowrap">
