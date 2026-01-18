@@ -8,10 +8,13 @@ const _inter = Inter({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ApexMediaDigital | Digital Agency",
+  title: "ApexMediaDigital | Digital Agency - Web Development, SEO & Graphic Design Services",
   description:
     "We craft digital experiences that elevate your brand. Full-stack development, SEO, design, and e-commerce solutions.",
-    generator: 'v0.app'
+  icons: {
+    icon: "/fav.ico",
+  },
+  generator: 'v0.app'
 }
 
 export default function RootLayout({
