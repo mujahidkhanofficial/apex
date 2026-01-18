@@ -32,14 +32,17 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid md:grid-cols-4 gap-12 mb-12">
           <div className="md:col-span-2">
-            <Link href="/" className="mb-4 inline-block">
+            <Link href="/" className="mb-6 flex items-center gap-3">
               <Image
                 src="/logo.svg"
                 alt="ApexMedia Logo"
-                width={180}
-                height={50}
-                className="h-10 w-auto object-contain"
+                width={200}
+                height={60}
+                className="h-12 w-auto object-contain"
               />
+              <span className="text-2xl font-bold tracking-tighter text-foreground font-mono">
+                APEX<span className="text-primary">MEDIA</span>
+              </span>
             </Link>
             <p className="text-muted-foreground max-w-md mb-6 leading-relaxed">
               A few skilled humans doing the work of many.™ We help brands grow through strategic design, development,

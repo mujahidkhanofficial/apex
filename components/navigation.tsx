@@ -33,15 +33,18 @@ export function Navigation() {
     >
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-3">
             <Image
               src="/logo.svg"
               alt="ApexMedia Logo"
-              width={150}
-              height={40}
-              className="h-8 w-auto object-contain"
+              width={160}
+              height={50}
+              className="h-10 w-auto object-contain"
               priority
             />
+            <span className="text-xl font-bold tracking-tighter text-foreground font-mono">
+              APEX<span className="text-primary">MEDIA</span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}

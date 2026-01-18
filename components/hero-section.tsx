@@ -1,326 +1,278 @@
 "use client"
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { Float, Environment } from "@react-three/drei"
-import { Suspense, useRef, useMemo } from "react"
-import { ArrowDown } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import type * as THREE from "three"
+import dynamic from "next/dynamic"
+import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion"
 
-function ServiceShape({
-  geometry,
-  color,
-  position,
-  scale = 1,
-  speed = 1,
-  isMobile = false,
-}: {
-  geometry: string
-  color: string
-  position: [number, number, number]
-  scale?: number
-  speed?: number
-  isMobile?: boolean
-}) {
-  const meshRef = useRef<THREE.Mesh>(null)
-  const wireframeRef = useRef<THREE.Mesh>(null)
+// Dynamically import the 3D component to avoid SSR issues
+const Robot3D = dynamic(() => import("./robot-3d"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  ),
+})
 
-  useFrame((state) => {
-    const time = state.clock.elapsedTime * speed
-    if (meshRef.current) {
-      meshRef.current.rotation.x = time * 0.3
-      meshRef.current.rotation.y = time * 0.4
-    }
-    if (wireframeRef.current) {
-      wireframeRef.current.rotation.x = time * 0.2
-      wireframeRef.current.rotation.y = time * 0.3
-    }
-  })
+function DynamicText() {
+  const words = ["Dominance", "Experiences", "Impact", "Products", "Journeys"]
+  const [index, setIndex] = useState(0)
 
-  const getGeometry = (type: string, size: number) => {
-    // Reduce segments for mobile
-    const segments = isMobile ? 0 : undefined
-    const torusRadial = isMobile ? 8 : 16
-    const torusTubular = isMobile ? 48 : 100
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % words.length)
+    }, 2500)
+    return () => clearInterval(timer)
+  }, [])
 
-    switch (type) {
-      case "octahedron":
-        return <octahedronGeometry args={[size, 0]} />
-      case "icosahedron":
-        return <icosahedronGeometry args={[size, 0]} />
-      case "dodecahedron":
-        return <dodecahedronGeometry args={[size, 0]} />
-      case "torusKnot":
-        return <torusKnotGeometry args={[size * 0.6, size * 0.2, torusTubular, torusRadial]} />
-      case "torus":
-        return <torusGeometry args={[size * 0.7, size * 0.3, torusRadial, 32]} />
-      default:
-        return <octahedronGeometry args={[size, 0]} />
-    }
+  return (
+    <span className="relative inline-flex ml-2 md:ml-4 h-[1.12em] overflow-hidden align-bottom">
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={index}
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: "0%", opacity: 1 }}
+          exit={{ y: "-100%", opacity: 0 }}
+          transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+          className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-500 to-primary whitespace-nowrap leading-[1.15] py-1"
+        >
+          {words[index]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  )
+}
+
+function MagneticButton({ children, className, variant = "primary" }: { children: React.ReactNode, className?: string, variant?: "primary" | "ghost" }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+
+  const springConfig = { damping: 15, stiffness: 150 }
+  const springX = useSpring(x, springConfig)
+  const springY = useSpring(y, springConfig)
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return
+    const { clientX, clientY } = e
+    const { left, top, width, height } = ref.current.getBoundingClientRect()
+    const centerX = left + width / 2
+    const centerY = top + height / 2
+    const distanceX = clientX - centerX
+    const distanceY = clientY - centerY
+
+    x.set(distanceX * 0.35)
+    y.set(distanceY * 0.35)
+  }
+
+  const handleMouseLeave = () => {
+    x.set(0)
+    y.set(0)
   }
 
   return (
-    <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.5}>
-      <group position={position} scale={scale}>
-        {/* Main solid shape */}
-        <mesh ref={meshRef}>
-          {getGeometry(geometry, 0.5)}
-          <meshStandardMaterial
-            color={color}
-            emissive={color}
-            emissiveIntensity={0.3}
-            metalness={0.8}
-            roughness={0.2}
-            transparent
-            opacity={0.9}
-          />
-        </mesh>
-
-        {/* Wireframe outer shell - conditional on mobile to save draw calls? keeping for style but maybe simpler */}
-        <mesh ref={wireframeRef} scale={1.4}>
-          {getGeometry(geometry, 0.5)}
-          <meshBasicMaterial color={color} wireframe transparent opacity={0.2} />
-        </mesh>
-
-        {/* Orbital ring - skip on mobile for perf */}
-        {!isMobile && (
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[0.8, 0.008, 16, 100]} />
-            <meshBasicMaterial color={color} transparent opacity={0.4} />
-          </mesh>
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x: springX, y: springY }}
+      className="inline-block"
+    >
+      <Link
+        href={children === "View Our Work" ? "#work" : "#contact"}
+        className={`px-8 py-4 font-medium rounded-sm transition-all text-center block group/btn ${variant === "primary"
+            ? "bg-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(74,222,128,0.4)]"
+            : "border border-white/10 text-foreground hover:bg-white/[0.02] backdrop-blur-sm relative overflow-hidden"
+          } ${className}`}
+      >
+        {variant === "ghost" && (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-blue-500/10 to-primary/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+            <div className="absolute inset-px rounded-[inherit] bg-[#050505] z-0" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary via-blue-500 to-primary opacity-0 group-hover/btn:opacity-100 transition-opacity -z-10" />
+          </>
         )}
-
-        {/* Glow light - reduce intensity or distance on mobile */}
-        <pointLight color={color} intensity={isMobile ? 0.5 : 1} distance={isMobile ? 2 : 4} />
-      </group>
-    </Float>
+        <span className="relative z-10">{children}</span>
+      </Link>
+    </motion.div>
   )
 }
 
-function MinimalParticles({ count = 50 }: { count?: number }) {
-  const mesh = useRef<THREE.Points>(null)
-
-  const particles = useMemo(() => {
-    const positions = new Float32Array(count * 3)
-    const colors = new Float32Array(count * 3)
-
-    for (let i = 0; i < count; i++) {
-      const i3 = i * 3
-      positions[i3] = (Math.random() - 0.5) * 20
-      positions[i3 + 1] = (Math.random() - 0.5) * 10
-      positions[i3 + 2] = (Math.random() - 0.5) * 10
-
-      // Mix of service colors
-      const colorChoice = Math.random()
-      if (colorChoice < 0.2) {
-        colors[i3] = 0.13
-        colors[i3 + 1] = 0.77
-        colors[i3 + 2] = 0.37 // green
-      } else if (colorChoice < 0.4) {
-        colors[i3] = 0.23
-        colors[i3 + 1] = 0.51
-        colors[i3 + 2] = 0.96 // blue
-      } else if (colorChoice < 0.6) {
-        colors[i3] = 0.96
-        colors[i3 + 1] = 0.25
-        colors[i3 + 2] = 0.37 // rose
-      } else if (colorChoice < 0.8) {
-        colors[i3] = 0.66
-        colors[i3 + 1] = 0.33
-        colors[i3 + 2] = 0.97 // purple
-      } else {
-        colors[i3] = 0.98
-        colors[i3 + 1] = 0.45
-        colors[i3 + 2] = 0.09 // orange
-      }
-    }
-
-    return { positions, colors }
-  }, [count])
-
-  useFrame((state) => {
-    if (mesh.current) {
-      mesh.current.rotation.y = state.clock.elapsedTime * 0.02
-    }
-  })
+function InfiniteMarquee() {
+  const items = [
+    { color: "#22c55e", label: "SEO Optimization" },
+    { color: "#3b82f6", label: "Full-Stack Development" },
+    { color: "#f43f5e", label: "Brand Design" },
+    { color: "#a855f7", label: "Content Strategy" },
+    { color: "#f97316", label: "E-Commerce" },
+  ]
+  const doubledItems = [...items, ...items, ...items]
 
   return (
-    <points ref={mesh}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={particles.positions.length / 3}
-          args={[particles.positions, 3]}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          count={particles.colors.length / 3}
-          args={[particles.colors, 3]}
-        />
-      </bufferGeometry>
-      <pointsMaterial size={0.04} vertexColors transparent opacity={0.6} sizeAttenuation />
-    </points>
-  )
-}
-
-function Scene3D() {
-  const { viewport } = useThree()
-  // Use viewport width for layout/responsive decisions
-  const isMobileLayout = viewport.width < 7
-  // Assume if it's small layout, we want mobile optimizations too
-  const isMobile = isMobileLayout
-
-  return (
-    <>
-      <ambientLight intensity={0.5} />
-      {/* Reduce lights on mobile */}
-      <pointLight position={[10, 10, 10]} intensity={0.8} />
-      {!isMobile && <pointLight position={[-10, -10, -10]} intensity={0.3} />}
-
-      {/* Service-themed shapes - Centered for mobile visibility */}
-      <ServiceShape
-        geometry="octahedron"
-        color="#22c55e"
-        position={isMobileLayout ? [-1.5, 1.2, -1] : [-4, 1, -2]}
-        scale={isMobileLayout ? 0.7 : 1.2}
-        speed={0.8}
-        isMobile={isMobile}
-      />
-      <ServiceShape
-        geometry="icosahedron"
-        color="#3b82f6"
-        position={isMobileLayout ? [1.5, -1.5, -1] : [4, -0.5, -1]}
-        scale={isMobileLayout ? 0.6 : 1}
-        speed={0.6}
-        isMobile={isMobile}
-      />
-      <ServiceShape
-        geometry="dodecahedron"
-        color="#f43f5e"
-        position={isMobileLayout ? [-1.2, -0.5, 0] : [-2, -1.5, 0]}
-        scale={isMobileLayout ? 0.5 : 0.8}
-        speed={1}
-        isMobile={isMobile}
-      />
-      <ServiceShape
-        geometry="torusKnot"
-        color="#a855f7"
-        position={isMobileLayout ? [1.2, 0.8, -2] : [3, 1.5, -3]}
-        scale={isMobileLayout ? 0.5 : 0.9}
-        speed={0.7}
-        isMobile={isMobile}
-      />
-      <ServiceShape
-        geometry="torus"
-        color="#f97316"
-        position={isMobileLayout ? [0, 2.5, -2] : [0, 2, -4]}
-        scale={isMobileLayout ? 0.5 : 0.7}
-        speed={0.9}
-        isMobile={isMobile}
-      />
-
-      {/* Subtle particles - reduced on mobile */}
-      <MinimalParticles count={isMobile ? 15 : 40} />
-
-      <Environment preset="night" />
-    </>
+    <div className="relative flex overflow-hidden border-y border-border/30 bg-card/10 backdrop-blur-sm py-4 mt-auto">
+      <motion.div
+        animate={{ x: [0, -1035] }}
+        transition={{ duration: 30, ease: "linear", repeat: Number.POSITIVE_INFINITY }}
+        className="flex whitespace-nowrap gap-12 px-6"
+      >
+        {doubledItems.map((item, i) => (
+          <div key={i} className="flex items-center gap-3">
+            <div
+              className="w-2 h-2 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+              style={{ backgroundColor: item.color, boxShadow: `0 0 12px ${item.color}` }}
+            />
+            <span className="text-xs font-mono text-muted-foreground uppercase tracking-[0.2em]">
+              {item.label}
+            </span>
+          </div>
+        ))}
+      </motion.div>
+    </div>
   )
 }
 
 export function HeroSection() {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-background">
-      {/* 3D Canvas Background */}
-      <div className="absolute inset-0">
-        <Canvas camera={{ position: [0, 0, 8], fov: 50 }} dpr={[1, 1.5]} gl={{ preserveDrawingBuffer: true, antialias: true }}>
-          <Suspense fallback={null}>
-            <Scene3D />
-          </Suspense>
-        </Canvas>
-      </div>
+    <section className="relative min-h-screen w-full overflow-hidden bg-[#050505]">
+      {/* Grain Texture Overlay */}
+      <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url('https://grainy-gradients.vercel.app/noise.svg')` }} />
 
-      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-background/90 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background pointer-events-none" />
+      {/* Ambient Bloom Glows */}
+      <div className="absolute top-[20%] right-[10%] w-[40vw] h-[40vw] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[20%] left-[5%] w-[30vw] h-[30vw] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
 
-      {/* Content Overlay */}
-      <div className="relative z-10 h-full flex flex-col justify-center items-center px-6">
-        <div className="max-w-4xl text-center">
-          <div className="inline-flex items-center gap-1.5 sm:gap-3 px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-full border border-border bg-card/50 backdrop-blur-md mb-6 sm:mb-8 hover:border-primary/50 transition-colors mt-4 sm:mt-0">
-            <span className="flex items-center gap-1.5 sm:gap-2">
-              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary animate-pulse shadow-[0_0_6px_rgba(34,197,94,0.6)]" />
-              <span className="text-[10px] sm:text-xs font-mono text-foreground uppercase tracking-wider font-medium">Online</span>
-            </span>
-            <span className="w-px h-3 sm:h-4 bg-border" />
-            <span className="text-[10px] sm:text-xs font-mono text-primary uppercase tracking-wider font-medium">Digital Agency</span>
-          </div>
-
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[1.1] mb-6 text-balance">
-            We Build
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-500 to-primary mt-2">
-              Digital Experiences
-            </span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 text-pretty leading-relaxed">
-            A few skilled humans doing the work of many. We help brands grow through strategic design, development, and
-            digital marketing.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center w-full sm:w-auto px-4 sm:px-0">
-            <Link
-              href="#work"
-              className="group relative px-6 sm:px-8 py-3.5 sm:py-4 bg-primary text-primary-foreground font-medium rounded-md overflow-hidden transition-all hover:shadow-[0_0_30px_rgba(74,222,128,0.3)] text-center"
+      {/* Content Overlay - Asymmetrical Layout */}
+      <div className="relative z-10 h-full flex flex-col pt-32">
+        <div className="max-w-7xl mx-auto px-6 w-full flex flex-col lg:flex-row items-center lg:items-start justify-between flex-1 pb-20">
+          {/* Text Content - Left Side */}
+          <div className="w-full lg:w-1/2 text-center lg:text-left flex flex-col justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl mb-12 w-fit mx-auto lg:mx-0 shadow-2xl"
             >
-              <span className="relative z-10">View Our Work</span>
-            </Link>
-            <Link
-              href="#contact"
-              className="px-6 sm:px-8 py-3.5 sm:py-4 border border-border text-foreground font-medium rounded-md hover:bg-card hover:border-primary/30 transition-all backdrop-blur-sm text-center"
-            >
-              Start a Project
-            </Link>
-          </div>
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_12px_rgba(74,222,128,0.8)]" />
+                <span className="text-[10px] font-mono text-white uppercase tracking-widest font-semibold">Online</span>
+              </span>
+              <span className="w-px h-3 bg-white/20" />
+              <span className="text-[10px] font-mono text-primary uppercase tracking-widest font-semibold">Digital Agency</span>
+            </motion.div>
 
-          {/* Service Legend - Grid layout for balanced mobile display */}
-          <div className="mt-10 sm:mt-16 flex flex-wrap justify-start sm:justify-center gap-x-2 gap-y-3 sm:gap-6 px-2 sm:px-4 max-w-xs sm:max-w-none mx-auto">
-            {[
-              { color: "#22c55e", label: "SEO" },
-              { color: "#3b82f6", label: "Dev" },
-              { color: "#f43f5e", label: "Design" },
-              { color: "#a855f7", label: "Content" },
-              { color: "#f97316", label: "E-Com" },
-            ].map((service, index) => (
-              <div
-                key={service.label}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/30 border border-border/50 backdrop-blur-sm hover:border-primary/30 transition-colors"
-                style={{
-                  animationDelay: `${index * 100}ms`
-                }}
-              >
-                <div
-                  className="w-1.5 h-1.5 rounded-full animate-pulse"
-                  style={{ backgroundColor: service.color, boxShadow: `0 0 8px ${service.color}` }}
-                />
-                <span className="text-[10px] sm:text-xs font-mono text-muted-foreground uppercase tracking-wider whitespace-nowrap">
-                  {service.label}
-                </span>
+            <motion.h1
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[0.9] mb-8"
+            >
+              Human Craft.<br />
+              <span className="flex items-center justify-center lg:justify-start">
+                Digital <DynamicText />
+              </span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.6 }}
+              className="text-lg md:text-xl text-muted-foreground max-w-xl mb-12 leading-relaxed font-medium"
+            >
+              "A few skilled humans doing the work of many."<br />
+              <span className="text-white/60 text-base md:text-lg block mt-4 font-normal">
+                Strategic design, high-performance development, and engineer-led growth for modern brands.
+              </span>
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="flex flex-col sm:flex-row gap-6 items-center lg:items-start"
+            >
+              <MagneticButton>View Our Work</MagneticButton>
+              <MagneticButton variant="ghost">Start a Project</MagneticButton>
+            </motion.div>
+
+            {/* Social Proof */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.8 }}
+              className="mt-16 text-center lg:text-left"
+            >
+              <p className="text-[10px] uppercase tracking-[0.3em] text-white/30 mb-6 font-semibold">Trusted by innovators at:</p>
+              <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 md:gap-12 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
+                {["NovaFin", "MetroChains", "NovaFlow", "StreamerPro", "CorpSafe"].map((client) => (
+                  <span key={client} className="text-sm md:text-base font-bold tracking-tighter text-white/50">{client}</span>
+                ))}
               </div>
-            ))}
+            </motion.div>
           </div>
 
-          {/* Scroll Indicator - Only shown on sm+ screens to prevent mobile overlap */}
-          <div className="hidden sm:flex mt-10 flex-col items-center">
-            <Link
-              href="#about"
-              className="flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
-            >
-              <span className="text-xs font-mono uppercase tracking-widest">Scroll</span>
-              <ArrowDown size={18} className="animate-bounce" />
-            </Link>
-          </div>
+          {/* 3D Robot - Right Side */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.4 }}
+            className="w-full lg:w-1/2 h-[400px] sm:h-[500px] lg:h-[600px] relative mt-12 lg:mt-0"
+          >
+            {!isMobile ? (
+              <Robot3D className="w-full h-full" />
+            ) : (
+              // Mobile fallback - simplified view
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="relative">
+                  <div className="w-48 h-64 bg-gradient-to-b from-card to-secondary rounded-3xl relative overflow-hidden border border-border">
+                    {/* Head */}
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-20 bg-secondary rounded-2xl border border-border">
+                      <div className="flex justify-center gap-4 pt-6">
+                        <div className="w-4 h-4 rounded-full bg-primary animate-pulse" />
+                        <div className="w-4 h-4 rounded-full bg-primary animate-pulse" />
+                      </div>
+                    </div>
+                    {/* Body accent */}
+                    <div className="absolute top-28 left-1/2 -translate-x-1/2 w-16 h-1 bg-primary rounded-full" />
+                    <div className="absolute top-32 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-primary/50 animate-pulse" />
+                    {/* Glow effect */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
+                  </div>
+                  {/* Floating particles */}
+                  <div className="absolute -top-4 -right-4 w-2 h-2 bg-primary rounded-full animate-ping" />
+                  <div className="absolute top-1/2 -left-6 w-1.5 h-1.5 bg-primary rounded-full animate-ping delay-150" />
+                  <div className="absolute -bottom-2 right-1/4 w-1 h-1 bg-primary rounded-full animate-ping delay-300" />
+                </div>
+              </div>
+            )}
+          </motion.div>
         </div>
+
+        {/* Dynamic Services Marquee */}
+        <InfiniteMarquee />
       </div>
 
+      {/* Custom Scroll Indicator */}
+      <div className="absolute bottom-32 left-1/2 -translate-x-1/2 hidden lg:flex flex-col items-center gap-4 group cursor-pointer z-20">
+        <Link href="#about" className="flex flex-col items-center gap-4">
+          <span className="text-[10px] font-mono uppercase tracking-[0.4em] text-white/40 group-hover:text-primary transition-colors">Explore</span>
+          <div className="w-px h-16 bg-gradient-to-b from-primary via-primary/20 to-transparent relative overflow-hidden">
+            <motion.div
+              animate={{ y: ["-100%", "100%"] }}
+              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+              className="absolute inset-x-0 top-0 h-1/2 bg-white/40 blur-sm"
+            />
+          </div>
+        </Link>
+      </div>
     </section>
   )
 }
