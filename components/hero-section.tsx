@@ -27,7 +27,7 @@ function DynamicText() {
   }, [])
 
   return (
-    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-500 to-primary ml-1 sm:ml-2 md:ml-4">
+    <span className="text-primary ml-1 sm:ml-2 md:ml-4">
       <AnimatePresence mode="wait">
         <motion.span
           key={index}
@@ -89,7 +89,7 @@ function MagneticButton({ children, className, variant = "primary" }: { children
         {variant === "ghost" && (
           <>
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-blue-500/10 to-primary/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-            <div className="absolute inset-px rounded-[inherit] bg-[#050505] z-0" />
+            <div className="absolute inset-px rounded-[inherit] bg-background z-0" />
             <div className="absolute inset-0 bg-gradient-to-r from-primary via-blue-500 to-primary opacity-0 group-hover/btn:opacity-100 transition-opacity -z-10" />
           </>
         )}
@@ -122,7 +122,7 @@ function InfiniteMarquee() {
               className="w-2 h-2 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
               style={{ backgroundColor: item.color, boxShadow: `0 0 12px ${item.color}` }}
             />
-            <span className="text-xs font-mono text-muted-foreground uppercase tracking-[0.2em]">
+            <span className="text-xs font-sans text-muted-foreground uppercase tracking-[0.2em]">
               {item.label}
             </span>
           </div>
@@ -145,7 +145,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-[#050505]">
+    <section className="relative min-h-screen w-full overflow-hidden bg-background">
       {/* Grain Texture Overlay */}
       <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: `url('https://grainy-gradients.vercel.app/noise.svg')` }} />
 
@@ -161,14 +161,14 @@ export function HeroSection() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl mb-12 w-fit mx-auto lg:mx-0 shadow-2xl"
+              className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-border bg-card/50 backdrop-blur-xl mb-12 w-fit mx-auto lg:mx-0 shadow-2xl"
             >
               <span className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_12px_rgba(74,222,128,0.8)]" />
-                <span className="text-[10px] font-mono text-white uppercase tracking-widest font-semibold">Online</span>
+                <span className="text-[10px] font-sans text-foreground uppercase tracking-widest font-semibold">Online</span>
               </span>
-              <span className="w-px h-3 bg-white/20" />
-              <span className="text-[10px] font-mono text-primary uppercase tracking-widest font-semibold">Digital Agency</span>
+              <span className="w-px h-3 bg-border" />
+              <span className="text-[10px] font-sans text-primary uppercase tracking-widest font-semibold">Digital Agency</span>
             </motion.div>
 
             <motion.h1
@@ -190,7 +190,7 @@ export function HeroSection() {
               className="text-lg md:text-xl text-muted-foreground max-w-xl mb-12 leading-relaxed font-medium"
             >
               "A few skilled humans doing the work of many."<br />
-              <span className="text-white/60 text-base md:text-lg block mt-4 font-normal">
+              <span className="text-muted-foreground text-base md:text-lg block mt-4 font-normal">
                 Strategic design, high-performance development, and engineer-led growth for modern brands.
               </span>
             </motion.p>
@@ -212,10 +212,10 @@ export function HeroSection() {
               transition={{ delay: 1.2, duration: 0.8 }}
               className="mt-16 text-center lg:text-left"
             >
-              <p className="text-[10px] uppercase tracking-[0.3em] text-white/30 mb-6 font-semibold">Trusted by innovators at:</p>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground/60 mb-6 font-semibold">Trusted by innovators at:</p>
               <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 md:gap-12 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
                 {["NovaFin", "MetroChains", "NovaFlow", "StreamerPro", "CorpSafe"].map((client) => (
-                  <span key={client} className="text-sm md:text-base font-bold tracking-tighter text-white/50">{client}</span>
+                  <span key={client} className="text-sm md:text-base font-bold tracking-tighter text-muted-foreground">{client}</span>
                 ))}
               </div>
             </motion.div>
@@ -226,39 +226,15 @@ export function HeroSection() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.4 }}
-            className="w-full lg:w-1/2 h-[450px] sm:h-[550px] lg:h-[700px] relative mt-12 lg:mt-0"
+            className="w-full lg:w-1/2 h-[450px] sm:h-[550px] lg:h-[700px] relative mt-12 lg:mt-0 flex items-center justify-center lg:justify-end"
           >
             {!hasMounted ? (
-              // SSR placeholder - same for server and client initial render
+              // SSR placeholder
               <div className="w-full h-full flex items-center justify-center">
                 <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
               </div>
-            ) : !isMobile ? (
-              <Robot3D className="w-full h-full" />
             ) : (
-              // Mobile fallback - simplified view
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="relative">
-                  <div className="w-48 h-64 bg-gradient-to-b from-card to-secondary rounded-3xl relative overflow-hidden border border-border">
-                    {/* Head */}
-                    <div className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-20 bg-secondary rounded-2xl border border-border">
-                      <div className="flex justify-center gap-4 pt-6">
-                        <div className="w-4 h-4 rounded-full bg-primary animate-pulse" />
-                        <div className="w-4 h-4 rounded-full bg-primary animate-pulse" />
-                      </div>
-                    </div>
-                    {/* Body accent */}
-                    <div className="absolute top-28 left-1/2 -translate-x-1/2 w-16 h-1 bg-primary rounded-full" />
-                    <div className="absolute top-32 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-primary/50 animate-pulse" />
-                    {/* Glow effect */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
-                  </div>
-                  {/* Floating particles */}
-                  <div className="absolute -top-4 -right-4 w-2 h-2 bg-primary rounded-full animate-ping" />
-                  <div className="absolute top-1/2 -left-6 w-1.5 h-1.5 bg-primary rounded-full animate-ping delay-150" />
-                  <div className="absolute -bottom-2 right-1/4 w-1 h-1 bg-primary rounded-full animate-ping delay-300" />
-                </div>
-              </div>
+              <Robot3D className="w-full h-full" />
             )}
           </motion.div>
         </div>
@@ -267,19 +243,7 @@ export function HeroSection() {
         <InfiniteMarquee />
       </div>
 
-      {/* Custom Scroll Indicator */}
-      <div className="absolute bottom-24 left-12 hidden lg:flex flex-col items-center gap-4 group cursor-pointer z-20">
-        <Link href="#about" className="flex flex-col items-center gap-4">
-          <span className="text-[10px] font-mono uppercase tracking-[0.4em] text-white/40 group-hover:text-primary transition-colors">Explore</span>
-          <div className="w-px h-16 bg-gradient-to-b from-primary via-primary/20 to-transparent relative overflow-hidden">
-            <motion.div
-              animate={{ y: ["-100%", "100%"] }}
-              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-              className="absolute inset-x-0 top-0 h-1/2 bg-white/40 blur-sm"
-            />
-          </div>
-        </Link>
-      </div>
+
     </section>
   )
 }

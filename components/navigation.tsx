@@ -42,7 +42,7 @@ export function Navigation() {
               className="h-10 w-auto object-contain"
               priority
             />
-            <span className="text-xl font-bold tracking-tighter text-foreground font-mono">
+            <span className="text-xl font-bold tracking-[0.2em] text-foreground font-brand uppercase">
               APEX<span className="text-primary">MEDIA</span>
             </span>
           </Link>

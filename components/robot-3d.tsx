@@ -21,17 +21,24 @@ function Robot({ mousePosition }: { mousePosition: { x: number; y: number } }) {
   const eyeLeftRef = useRef<THREE.Mesh>(null);
   const eyeRightRef = useRef<THREE.Mesh>(null);
 
-  // Colors for the robot - ApexMedia Branding
+  // Colors for the robot - Steel/Metallic Look
   const colors = useMemo(
     () => ({
-      body: "#0a0a0a",
-      accent: "#22c55e",
-      emissive: "#22c55e",
-      metal: "#1a1a1a",
-      eye: "#22c55e",
+      body: "#8b9aab",      // Brushed steel silver
+      accent: "#16a34a",    // Green accent
+      emissive: "#22c55e",  // Green glow
+      metal: "#a8b5c4",     // Lighter steel for highlights
+      eye: "#22c55e",       // Green eyes
     }),
     []
   );
+
+  const { viewport } = useThree();
+  const responsiveScale = useMemo(() => {
+    if (viewport.width < 5) return 0.55; // Mobile
+    if (viewport.width < 7) return 0.65; // Tablet
+    return 0.85; // Desktop
+  }, [viewport.width]);
 
   useFrame((state) => {
     const time = state.clock.elapsedTime;
@@ -78,14 +85,14 @@ function Robot({ mousePosition }: { mousePosition: { x: number; y: number } }) {
 
   return (
     <Float speed={1.5} rotationIntensity={0.15} floatIntensity={0.3}>
-      <group ref={groupRef} position={[0, 0.3, 0]} scale={0.85}>
+      <group ref={groupRef} position={[0, -0.2, 0]} scale={responsiveScale}>
         {/* Body - Main torso */}
         <mesh position={[0, 0, 0]} castShadow>
           <boxGeometry args={[1.2, 1.5, 0.8]} />
           <meshStandardMaterial
             color={colors.body}
-            metalness={0.8}
-            roughness={0.2}
+            metalness={0.95}
+            roughness={0.15}
           />
         </mesh>
 
@@ -294,24 +301,26 @@ function Robot({ mousePosition }: { mousePosition: { x: number; y: number } }) {
 }
 
 // Animated particles around the robot
+// subtle ambient floating particles for light theme
 function Particles() {
   const particlesRef = useRef<THREE.Points>(null);
-  const count = 100;
+  const count = 60; // Reduced count for cleaner look
 
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 10;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 10;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 10;
+      pos[i * 3] = (Math.random() - 0.5) * 12; // Wider spread
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 12;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 8;
     }
     return pos;
   }, []);
 
   useFrame((state) => {
     if (particlesRef.current) {
-      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.05;
-      particlesRef.current.rotation.x = state.clock.elapsedTime * 0.03;
+      // Very slow, soothing movement
+      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.02;
+      particlesRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.02;
     }
   });
 
@@ -324,10 +333,10 @@ function Particles() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.03}
-        color="#22c55e"
+        size={0.04}
+        color="#94a3b8" // Slate-400 (subtle gray-blue)
         transparent
-        opacity={0.6}
+        opacity={0.4}
         sizeAttenuation
       />
     </points>
@@ -386,20 +395,20 @@ export default function Robot3D({ className }: Robot3DProps) {
         style={{ background: "transparent" }}
       >
         <Suspense fallback={<LoadingFallback />}>
-          {/* Lighting */}
-          <ambientLight intensity={0.3} />
+          {/* Lighting - Optimized for light theme */}
+          <ambientLight intensity={0.6} />
           <directionalLight
             position={[5, 5, 5]}
-            intensity={1}
+            intensity={1.2}
             castShadow
             shadow-mapSize={[1024, 1024]}
           />
-          <pointLight position={[-5, 5, -5]} intensity={0.5} color="#22c55e" />
+          <pointLight position={[-5, 5, -5]} intensity={0.6} color="#16a34a" />
           <spotLight
             position={[0, 10, 0]}
             angle={0.3}
             penumbra={1}
-            intensity={0.5}
+            intensity={0.6}
             color="#ffffff"
           />
 
@@ -412,13 +421,14 @@ export default function Robot3D({ className }: Robot3DProps) {
           {/* Environment */}
           <Environment preset="city" />
 
-          {/* Contact shadow */}
+          {/* Contact shadow - adjusted for light bg */}
           <ContactShadows
             position={[0, -1.8, 0]}
-            opacity={0.4}
+            opacity={0.3}
             scale={8}
-            blur={2.5}
+            blur={2}
             far={3}
+            color="#1a1a1a"
           />
 
           {/* Camera controller */}

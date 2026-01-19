@@ -2,301 +2,23 @@
 
 import { useRef, useMemo } from "react"
 import { motion, useInView } from "framer-motion"
-import { Canvas, useFrame } from "@react-three/fiber"
-import { Float, MeshDistortMaterial, Sphere } from "@react-three/drei"
-import type * as THREE from "three"
+import Image from "next/image"
+import { Rocket, Users, Heart, Clock, type LucideIcon } from "lucide-react"
 
-const stats = [
-  { value: "50+", label: "Projects Delivered", icon: "rocket" },
-  { value: "5", label: "Expert Team Members", icon: "users" },
-  { value: "98%", label: "Client Satisfaction", icon: "heart" },
-  { value: "24/7", label: "Support Available", icon: "clock" },
+const stats: { value: string; label: string; icon: LucideIcon }[] = [
+  { value: "50+", label: "Projects Delivered", icon: Rocket },
+  { value: "5", label: "Expert Team Members", icon: Users },
+  { value: "98%", label: "Client Satisfaction", icon: Heart },
+  { value: "24/7", label: "Support Available", icon: Clock },
 ]
 
-function DigitalGlobe() {
-  const globeRef = useRef<THREE.Group>(null)
-  const nodesRef = useRef<THREE.Group>(null)
 
-  // Standard segments (optimization handled by viewport culling now, but keeping reasonable defaults)
-  const globeSegments = 32
-  const wireframeSegments = 24
-  const torusRadial = 8
-  const torusTubular = 64
-
-  // Generate connection nodes around the globe
-  const nodes = useMemo(() => {
-    const points = []
-    const nodeCount = 20
-    for (let i = 0; i < nodeCount; i++) {
-      const phi = Math.acos(-1 + (2 * i) / nodeCount)
-      const theta = Math.sqrt(nodeCount * Math.PI) * phi
-      const x = 1.5 * Math.cos(theta) * Math.sin(phi)
-      const y = 1.5 * Math.sin(theta) * Math.sin(phi)
-      const z = 1.5 * Math.cos(phi)
-      points.push({ x, y, z, delay: i * 0.1 })
-    }
-    return points
-  }, [])
-
-  // Generate connection lines between nearby nodes
-  const connections = useMemo(() => {
-    const lines: { start: number; end: number }[] = []
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        const dist = Math.sqrt(
-          Math.pow(nodes[i].x - nodes[j].x, 2) +
-          Math.pow(nodes[i].y - nodes[j].y, 2) +
-          Math.pow(nodes[i].z - nodes[j].z, 2),
-        )
-        if (dist < 1.5) {
-          lines.push({ start: i, end: j })
-        }
-      }
-    }
-    return lines
-  }, [nodes])
-
-  useFrame((state) => {
-    if (globeRef.current) {
-      globeRef.current.rotation.y = state.clock.elapsedTime * 0.15
-    }
-    if (nodesRef.current) {
-      nodesRef.current.rotation.y = state.clock.elapsedTime * 0.15
-    }
-  })
-
+// Simple Icon Display for Stats
+const StatIcon = ({ stat }: { stat: (typeof stats)[0] }) => {
+  const IconComponent = stat.icon
   return (
-    <group>
-      {/* Main globe group */}
-      <group ref={globeRef}>
-        {/* Core sphere with glow */}
-        <Sphere args={[1.4, globeSegments, globeSegments]}>
-          <meshStandardMaterial color="#0a0a0a" emissive="#22c55e" emissiveIntensity={0.05} transparent opacity={0.3} />
-        </Sphere>
-
-        {/* Wireframe sphere */}
-        <Sphere args={[1.45, wireframeSegments, wireframeSegments]}>
-          <meshBasicMaterial color="#22c55e" wireframe transparent opacity={0.15} />
-        </Sphere>
-
-        {/* Latitude lines */}
-        {[-0.8, -0.4, 0, 0.4, 0.8].map((y, i) => {
-          const radius = Math.sqrt(1 - y * y) * 1.5
-          return (
-            <mesh key={`lat-${i}`} position={[0, y * 1.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
-              <torusGeometry args={[radius, 0.008, torusRadial, torusTubular]} />
-              <meshStandardMaterial
-                color="#22c55e"
-                emissive="#22c55e"
-                emissiveIntensity={0.3}
-                transparent
-                opacity={0.4}
-              />
-            </mesh>
-          )
-        })}
-
-        {/* Longitude lines */}
-        {[0, 30, 60, 90, 120, 150].map((angle, i) => (
-          <mesh key={`long-${i}`} rotation={[0, (angle * Math.PI) / 180, 0]}>
-            <torusGeometry args={[1.5, 0.008, torusRadial, torusTubular]} />
-            <meshStandardMaterial
-              color="#22c55e"
-              emissive="#22c55e"
-              emissiveIntensity={0.3}
-              transparent
-              opacity={0.3}
-            />
-          </mesh>
-        ))}
-      </group>
-
-      {/* Connection nodes */}
-      <group ref={nodesRef}>
-        {nodes.map((node, i) => (
-          <Float key={i} speed={2} rotationIntensity={0} floatIntensity={0.2}>
-            <mesh position={[node.x, node.y, node.z]}>
-              <sphereGeometry args={[0.06, 16, 16]} />
-              <meshStandardMaterial color="#22c55e" emissive="#22c55e" emissiveIntensity={0.8} />
-            </mesh>
-            {/* Node glow ring */}
-            <mesh position={[node.x, node.y, node.z]}>
-              <sphereGeometry args={[0.1, 16, 16]} />
-              <meshStandardMaterial
-                color="#22c55e"
-                emissive="#22c55e"
-                emissiveIntensity={0.3}
-                transparent
-                opacity={0.3}
-              />
-            </mesh>
-          </Float>
-        ))}
-
-        {/* Connection lines between nodes */}
-        {connections.map((conn, i) => {
-          const start = nodes[conn.start]
-          const end = nodes[conn.end]
-          const midX = (start.x + end.x) / 2
-          const midY = (start.y + end.y) / 2
-          const midZ = (start.z + end.z) / 2
-          const length = Math.sqrt(
-            Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2) + Math.pow(end.z - start.z, 2),
-          )
-
-          return (
-            <mesh key={`conn-${i}`} position={[midX, midY, midZ]} lookAt={[end.x, end.y, end.z]}>
-              <cylinderGeometry args={[0.005, 0.005, length, 4]} />
-              <meshStandardMaterial
-                color="#22c55e"
-                emissive="#22c55e"
-                emissiveIntensity={0.5}
-                transparent
-                opacity={0.3}
-              />
-            </mesh>
-          )
-        })}
-      </group>
-
-      {/* Outer orbital rings */}
-      <mesh rotation={[Math.PI / 4, 0, 0]}>
-        <torusGeometry args={[2.2, 0.015, 16, 100]} />
-        <meshStandardMaterial color="#22c55e" emissive="#22c55e" emissiveIntensity={0.5} transparent opacity={0.5} />
-      </mesh>
-      <mesh rotation={[Math.PI / 2.5, Math.PI / 4, 0]}>
-        <torusGeometry args={[2.4, 0.01, 16, 100]} />
-        <meshStandardMaterial color="#22c55e" emissive="#22c55e" emissiveIntensity={0.3} transparent opacity={0.3} />
-      </mesh>
-
-      {/* Orbiting satellites */}
-      <OrbitingSatellite radius={2.2} speed={0.8} offset={0} />
-      <OrbitingSatellite radius={2.4} speed={0.6} offset={Math.PI} />
-    </group>
-  )
-}
-
-function OrbitingSatellite({ radius, speed, offset }: { radius: number; speed: number; offset: number }) {
-  const meshRef = useRef<THREE.Mesh>(null)
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      const t = state.clock.elapsedTime * speed + offset
-      meshRef.current.position.x = Math.cos(t) * radius
-      meshRef.current.position.z = Math.sin(t) * radius
-      meshRef.current.position.y = Math.sin(t * 0.5) * 0.5
-    }
-  })
-
-  return (
-    <mesh ref={meshRef}>
-      <octahedronGeometry args={[0.08, 0]} />
-      <meshStandardMaterial color="#3b82f6" emissive="#3b82f6" emissiveIntensity={0.8} />
-    </mesh>
-  )
-}
-
-function FloatingParticles() {
-  const particlesRef = useRef<THREE.Points>(null)
-  const count = 100
-
-  const positions = useMemo(() => {
-    const pos = new Float32Array(count * 3)
-    for (let i = 0; i < count; i++) {
-      const theta = Math.random() * Math.PI * 2
-      const phi = Math.acos(2 * Math.random() - 1)
-      const r = 3 + Math.random() * 1.5
-      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta)
-      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
-      pos[i * 3 + 2] = r * Math.cos(phi)
-    }
-    return pos
-  }, [])
-
-  useFrame((state) => {
-    if (particlesRef.current) {
-      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.03
-    }
-  })
-
-  return (
-    <points ref={particlesRef}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-      </bufferGeometry>
-      <pointsMaterial size={0.03} color="#22c55e" transparent opacity={0.6} sizeAttenuation />
-    </points>
-  )
-}
-
-function AboutScene() {
-  return (
-    <>
-      <ambientLight intensity={0.3} />
-      <pointLight position={[10, 10, 10]} intensity={1} color="#22c55e" />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#3b82f6" />
-      <pointLight position={[0, 5, 5]} intensity={0.6} color="#ffffff" />
-      <DigitalGlobe />
-      <FloatingParticles />
-    </>
-  )
-}
-
-function StatCard3D({ icon }: { icon: string }) {
-  const meshRef = useRef<THREE.Mesh>(null)
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.5
-      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.2
-    }
-  })
-
-  const getGeometry = () => {
-    switch (icon) {
-      case "rocket":
-        return <coneGeometry args={[0.5, 1, 4]} />
-      case "users":
-        return <dodecahedronGeometry args={[0.5, 0]} />
-      case "heart":
-        return <octahedronGeometry args={[0.5, 0]} />
-      case "clock":
-        return <torusGeometry args={[0.4, 0.15, 16, 32]} />
-      default:
-        return <boxGeometry args={[0.6, 0.6, 0.6]} />
-    }
-  }
-
-  return (
-    <>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[2, 2, 2]} intensity={1} color="#22c55e" />
-      <Float speed={3} rotationIntensity={0.5} floatIntensity={0.5}>
-        <mesh ref={meshRef}>
-          {getGeometry()}
-          <MeshDistortMaterial color="#22c55e" emissive="#22c55e" emissiveIntensity={0.3} distort={0.2} speed={2} />
-        </mesh>
-      </Float>
-    </>
-  )
-}
-
-const StatCardWithCanvas = ({ stat }: { stat: (typeof stats)[0] }) => {
-  const containerRef = useRef(null)
-  const isInView = useInView(containerRef, { margin: "0px", amount: 0.5 })
-
-  return (
-    <div ref={containerRef} className="h-20 w-20 mx-auto mb-4 flex items-center justify-center">
-      {isInView ? (
-        <Canvas camera={{ position: [0, 0, 2.5], fov: 45 }}>
-          <StatCard3D icon={stat.icon} />
-        </Canvas>
-      ) : (
-        // Static fallback/placeholder when out of view
-        <div className="text-secondary/20">
-          {/* Optional: Icon placeholder */}
-        </div>
-      )}
+    <div className="h-16 w-16 mx-auto mb-4 flex items-center justify-center rounded-lg bg-primary/10 border border-primary/30 group-hover:bg-primary/20 group-hover:border-primary/50 transition-all duration-300">
+      <IconComponent className="w-8 h-8 text-primary" strokeWidth={1.5} />
     </div>
   )
 }
@@ -330,7 +52,7 @@ export function AboutSection() {
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="h-px w-12 bg-gradient-to-r from-transparent to-primary" />
-              <p className="text-primary text-sm uppercase tracking-[0.3em] font-mono">// About Us</p>
+              <p className="text-primary text-sm uppercase tracking-[0.3em] font-sans">// About Us</p>
             </div>
 
             <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 text-balance">
@@ -364,7 +86,7 @@ export function AboutSection() {
               {["Innovation", "Strategy", "Execution", "Growth"].map((tag) => (
                 <span
                   key={tag}
-                  className="px-4 py-2 bg-primary/10 border border-primary/30 text-primary text-sm font-mono rounded-sm"
+                  className="px-4 py-2 bg-primary/10 border border-primary/30 text-primary text-sm font-sans rounded-sm"
                 >
                   {tag}
                 </span>
@@ -379,36 +101,16 @@ export function AboutSection() {
             className="relative"
             ref={globeContainerRef}
           >
-            <div className="aspect-square relative">
-              {/* 3D Canvas - Viewport Controlled */}
-              <div className="absolute inset-0">
-                {isGlobeInView && (
-                  <Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
-                    <AboutScene />
-                  </Canvas>
-                )}
-              </div>
-
-              {/* Corner accents */}
-              <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-primary/50" />
-              <div className="absolute top-0 right-0 w-16 h-16 border-r-2 border-t-2 border-primary/50" />
-              <div className="absolute bottom-0 left-0 w-16 h-16 border-l-2 border-b-2 border-primary/50" />
-              <div className="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-primary/50" />
-
-              {/* Scanning line effect */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <motion.div
-                  className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent"
-                  animate={{ top: ["0%", "100%"] }}
-                  transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+            <div className="aspect-square relative flex items-center justify-center p-8">
+              {/* SVG Replacement for 3D Globe */}
+              <div className="relative w-full h-full">
+                <Image
+                  src="/about-us.svg"
+                  alt="Global Reach"
+                  fill
+                  className="object-contain"
+                  priority
                 />
-              </div>
-
-              <div className="absolute top-4 left-4 text-xs font-mono text-primary/70">
-                <span className="text-primary">●</span> WORLDWIDE
-              </div>
-              <div className="absolute bottom-4 right-4 text-xs font-mono text-muted-foreground">
-                DIGITAL.PRESENCE.ACTIVE
               </div>
             </div>
           </motion.div>
@@ -429,11 +131,11 @@ export function AboutSection() {
               className="group relative"
             >
               <div className="relative p-6 bg-card/50 backdrop-blur-sm border border-border rounded-sm overflow-hidden hover:border-primary/50 transition-colors duration-300">
-                {/* 3D Icon or Static Fallback */}
-                <StatCardWithCanvas stat={stat} />
+                {/* Lucide Icon */}
+                <StatIcon stat={stat} />
 
                 {/* Stat value */}
-                <p className="text-4xl md:text-5xl font-bold text-primary mb-2 text-center font-mono">{stat.value}</p>
+                <p className="text-4xl md:text-5xl font-bold text-primary mb-2 text-center font-sans">{stat.value}</p>
                 <p className="text-muted-foreground text-sm text-center">{stat.label}</p>
 
                 {/* Hover glow */}
@@ -445,7 +147,7 @@ export function AboutSection() {
 
                 {/* Tech label */}
                 <div className="absolute top-2 left-2">
-                  <span className="text-[10px] font-mono text-primary/50">0{index + 1}</span>
+                  <span className="text-[10px] font-sans text-primary/50">0{index + 1}</span>
                 </div>
               </div>
             </motion.div>

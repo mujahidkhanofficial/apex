@@ -2,11 +2,8 @@
 
 import { useRef, useState, useMemo, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Canvas, useFrame } from "@react-three/fiber"
-import { Environment } from "@react-three/drei"
 import { Suspense } from "react"
 import { Linkedin, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react"
-import type * as THREE from "three"
 import Image from "next/image"
 
 const teamMembers = [
@@ -63,58 +60,7 @@ const teamMembers = [
 
 
 
-function HolographicBackground({ color }: { color: string }) {
-  const ringRef1 = useRef<THREE.Mesh>(null)
-  const ringRef2 = useRef<THREE.Mesh>(null)
-  const particlesRef = useRef<THREE.Points>(null)
 
-  const particlePositions = useMemo(() => {
-    const positions = new Float32Array(100 * 3)
-    for (let i = 0; i < 100; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 8
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 8
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 4 - 2
-    }
-    return positions
-  }, [])
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime
-    if (ringRef1.current) {
-      ringRef1.current.rotation.z = t * 0.2
-      ringRef1.current.rotation.x = Math.PI / 2 + Math.sin(t * 0.3) * 0.1
-    }
-    if (ringRef2.current) {
-      ringRef2.current.rotation.z = -t * 0.15
-      ringRef2.current.rotation.y = Math.sin(t * 0.2) * 0.2
-    }
-    if (particlesRef.current) {
-      particlesRef.current.rotation.y = t * 0.05
-    }
-  })
-
-  return (
-    <group position={[0, 0, -1]}>
-      {/* Orbital rings behind the image */}
-      <mesh ref={ringRef1}>
-        <torusGeometry args={[2.5, 0.02, 16, 100]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.5} transparent opacity={0.4} />
-      </mesh>
-      <mesh ref={ringRef2} rotation={[Math.PI / 3, 0, Math.PI / 4]}>
-        <torusGeometry args={[3, 0.015, 16, 100]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} transparent opacity={0.3} />
-      </mesh>
-
-      {/* Background particles */}
-      <points ref={particlesRef}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" count={100} args={[particlePositions, 3]} />
-        </bufferGeometry>
-        <pointsMaterial size={0.04} color={color} transparent opacity={0.5} sizeAttenuation />
-      </points>
-    </group>
-  )
-}
 
 export function TeamSection() {
   const ref = useRef(null)
@@ -148,7 +94,7 @@ export function TeamSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <p className="text-primary text-sm uppercase tracking-[0.3em] mb-4 font-mono">{"<Team />"}</p>
+
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">The Minds Behind Apex</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             A collective of specialists united by a passion for digital excellence.
@@ -212,71 +158,16 @@ export function TeamSection() {
                       }}
                     />
 
-                    {/* Scan lines effect */}
-                    <div
-                      className="absolute inset-0 pointer-events-none opacity-20"
-                      style={{
-                        backgroundImage:
-                          "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 4px)",
-                      }}
-                    />
 
-                    {/* Animated scan line */}
-                    <motion.div
-                      className="absolute left-0 right-0 h-1 pointer-events-none"
-                      style={{
-                        background: `linear-gradient(90deg, transparent, ${activeMember.color}, transparent)`,
-                        boxShadow: `0 0 20px ${activeMember.color}`,
-                      }}
-                      animate={{ top: ["0%", "100%"] }}
-                      transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                    />
                   </div>
 
-                  {/* Corner accents */}
-                  <div
-                    className="absolute top-2 left-2 w-6 h-6 border-l border-t"
-                    style={{ borderColor: activeMember.color }}
-                  />
-                  <div
-                    className="absolute top-2 right-2 w-6 h-6 border-r border-t"
-                    style={{ borderColor: activeMember.color }}
-                  />
-                  <div
-                    className="absolute bottom-2 left-2 w-6 h-6 border-l border-b"
-                    style={{ borderColor: activeMember.color }}
-                  />
-                  <div
-                    className="absolute bottom-2 right-2 w-6 h-6 border-r border-b"
-                    style={{ borderColor: activeMember.color }}
-                  />
+
                 </motion.div>
               </AnimatePresence>
             </div>
 
-            {/* 3D Background elements */}
-            <div className="absolute inset-0 z-0">
-              <Canvas camera={{ position: [0, 0, 4], fov: 50 }}>
-                <Suspense fallback={null}>
-                  <ambientLight intensity={0.2} />
-                  <pointLight position={[5, 5, 5]} intensity={0.3} color={activeMember.color} />
-                  <HolographicBackground color={activeMember.color} />
-                  <Environment preset="night" />
-                </Suspense>
-              </Canvas>
-            </div>
 
-            {/* Status indicator */}
-            <div className="absolute bottom-4 left-4 flex items-center gap-2 z-20">
-              <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-              <span className="text-primary text-xs font-mono">PROFILE_ACTIVE</span>
-            </div>
 
-            {/* Member index */}
-            <div className="absolute top-4 right-4 text-right z-20">
-              <span className="text-4xl font-bold text-primary font-mono">0{activeIndex + 1}</span>
-              <span className="text-muted-foreground text-lg font-mono">/0{teamMembers.length}</span>
-            </div>
           </motion.div>
 
           {/* Member Info Panel */}
@@ -315,7 +206,7 @@ export function TeamSection() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-foreground">{activeMember.name}</h3>
-                    <p className="text-primary font-mono text-sm">{activeMember.role}</p>
+                    <p className="text-primary font-sans text-sm">{activeMember.role}</p>
                   </div>
                 </div>
 
@@ -323,7 +214,7 @@ export function TeamSection() {
 
                 {/* Skills */}
                 <div className="mb-6">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3 font-mono">{"// Skills"}</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-3 font-sans">{"// Skills"}</p>
                   <div className="flex flex-wrap gap-2">
                     {activeMember.skills.map((skill, i) => (
                       <motion.span
@@ -331,7 +222,7 @@ export function TeamSection() {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.1 }}
-                        className="px-3 py-1.5 bg-primary/10 border border-primary/30 text-primary text-sm font-mono rounded-sm hover:bg-primary/20 transition-colors"
+                        className="px-3 py-1.5 bg-primary/10 border border-primary/30 text-primary text-sm font-sans rounded-sm hover:bg-primary/20 transition-colors"
                       >
                         {skill}
                       </motion.span>

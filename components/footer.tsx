@@ -40,7 +40,7 @@ export function Footer() {
                 height={60}
                 className="h-12 w-auto object-contain"
               />
-              <span className="text-2xl font-bold tracking-tighter text-foreground font-mono">
+              <span className="text-2xl font-bold tracking-[0.2em] text-foreground font-brand uppercase">
                 APEX<span className="text-primary">MEDIA</span>
               </span>
             </Link>

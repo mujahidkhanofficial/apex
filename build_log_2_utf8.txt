@@ -1,0 +1,48 @@
+﻿
+> my-v0-project@0.1.0 build
+> next build
+
+   Γû▓ Next.js 16.0.10 (Turbopack)
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 6.5s
+   Running TypeScript ...
+npm : Failed to compile.
+At line:1 char:1
++ npm run build > build_log_2.txt 2>&1 ; powershell 
+-Command "Get-Conte ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Failed  
+   to compile.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+./components/team-section.tsx:258:28
+Type error: Cannot find name 'sectionRef'.
+
+[0m [90m 256 |[39m             {[90m/* 3D 
+Background elements */[39m}
+ [90m 257 |[39m             
+[33m<[39m[33mdiv[39m 
+className[33m=[39m[32m"absolute inset-0 
+z-0"[39m[33m>[39m
+[31m[1m>[22m[39m[90m 258 |[39m               
+[33m<[39m[33mView[39m 
+track[33m=[39m{sectionRef [36mas[39m 
+any}[33m>[39m
+ [90m     |[39m                            
+[31m[1m^[22m[39m
+ [90m 259 |[39m                 
+[33m<[39m[33mPerspectiveCamera[39m makeDefault 
+position[33m=[39m{[[35m0[39m[33m,[39m 
+[35m0[39m[33m,[39m [35m4[39m]} 
+fov[33m=[39m{[35m50[39m} [33m/[39m[33m>[39m
+ [90m 260 |[39m                 
+[33m<[39m[33mSuspense[39m 
+fallback[33m=[39m{[36mnull[39m}[33m>[39m
+ [90m 261 |[39m                   
+[33m<[39m[33mambientLight[39m 
+intensity[33m=[39m{[35m0.2[39m} 
+[33m/[39m[33m>[39m[0m
+Next.js build worker exited with code: 1 and signal: 
+null
