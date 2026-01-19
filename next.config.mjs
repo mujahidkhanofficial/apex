@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
+  // Base path for GitHub Pages project site
+  basePath: process.env.NODE_ENV === 'production' ? '/apex' : '',
+  input: {
+    // filesystem cache for build performance
+  },
   typescript: {
     // ignoreBuildErrors: true,
   },
